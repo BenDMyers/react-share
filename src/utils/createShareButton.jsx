@@ -1,43 +1,54 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
+import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
 
-const isPromise = obj => !!obj
-  && (typeof obj === 'object' || typeof obj === 'function')
-  && typeof obj.then === 'function';
+const isPromise = obj =>
+  !!obj &&
+  (typeof obj === "object" || typeof obj === "function") &&
+  typeof obj.then === "function";
 
 const getBoxPositionOnWindowCenter = (width, height) => ({
-  left: (window.outerWidth / 2)
-    + (window.screenX || window.screenLeft || 0) - (width / 2),
-  top: (window.outerHeight / 2)
-    + (window.screenY || window.screenTop || 0) - (height / 2),
+  left:
+    window.outerWidth / 2 +
+    (window.screenX || window.screenLeft || 0) -
+    width / 2,
+  top:
+    window.outerHeight / 2 +
+    (window.screenY || window.screenTop || 0) -
+    height / 2
 });
 
 const getBoxPositionOnScreenCenter = (width, height) => ({
   top: (window.screen.height - height) / 2,
-  left: (window.screen.width - width) / 2,
+  left: (window.screen.width - width) / 2
 });
 
-function windowOpen(url, { height = 400, width = 550, ...configRest }, onClose) {
+function windowOpen(
+  url,
+  { height = 400, width = 550, ...configRest },
+  onClose
+) {
   const config = {
     height,
     width,
-    location: 'no',
-    toolbar: 'no',
-    status: 'no',
-    directories: 'no',
-    menubar: 'no',
-    scrollbars: 'yes',
-    resizable: 'no',
-    centerscreen: 'yes',
-    chrome: 'yes',
-    ...configRest,
+    location: "no",
+    toolbar: "no",
+    status: "no",
+    directories: "no",
+    menubar: "no",
+    scrollbars: "yes",
+    resizable: "no",
+    centerscreen: "yes",
+    chrome: "yes",
+    ...configRest
   };
 
   const shareDialog = window.open(
     url,
-    '',
-    Object.keys(config).map(key => `${key}=${config[key]}`).join(', '),
+    "",
+    Object.keys(config)
+      .map(key => `${key}=${config[key]}`)
+      .join(", ")
   );
 
   if (onClose) {
@@ -75,32 +86,24 @@ class ShareButton extends PureComponent {
     style: PropTypes.object,
     windowWidth: PropTypes.number,
     windowHeight: PropTypes.number,
-    windowPosition: PropTypes.oneOf(['windowCenter', 'screenCenter']),
+    windowPosition: PropTypes.oneOf(["windowCenter", "screenCenter"]),
     beforeOnClick: PropTypes.func,
     onShareWindowClose: PropTypes.func,
-    tabIndex: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]),
+    tabIndex: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   };
 
   static defaultProps = {
     disabledStyle: {
-      opacity: 0.6,
+      opacity: 0.6
     },
     openWindow: true,
-    role: 'button',
-    windowPosition: 'windowCenter',
-    tabIndex: '0',
-  }
+    role: "button",
+    windowPosition: "windowCenter",
+    tabIndex: "0"
+  };
 
-  onClick = (e) => {
-    const {
-      disabled,
-      onClick,
-      openWindow,
-      beforeOnClick,
-    } = this.props;
+  onClick = e => {
+    const { disabled, onClick, openWindow, beforeOnClick } = this.props;
 
     if (disabled) {
       return;
@@ -110,7 +113,9 @@ class ShareButton extends PureComponent {
 
     const link = this.link();
 
-    const clickHandler = openWindow ? () => this.openWindow(link) : () => onClick(link);
+    const clickHandler = openWindow
+      ? () => this.openWindow(link)
+      : () => onClick(link);
 
     if (beforeOnClick) {
       const returnVal = beforeOnClick();
@@ -123,33 +128,32 @@ class ShareButton extends PureComponent {
     } else {
       clickHandler();
     }
-  }
+  };
 
-  onKeyPress = (e) => {
-    if (e.key === 'Enter' || e.key === 13 || e.key === ' ' || e.key === 32) {
+  onKeyPress = e => {
+    if (e.key === "Enter" || e.key === 13 || e.key === " " || e.key === 32) {
       this.onClick(e);
     }
-  }
+  };
 
-  openWindow = (link) => {
+  openWindow = link => {
     const {
       windowPosition,
       onShareWindowClose,
       windowWidth,
-      windowHeight,
+      windowHeight
     } = this.props;
 
     const windowConfig = {
       height: windowHeight,
       width: windowWidth,
-      ...(windowPosition === 'windowCenter'
+      ...(windowPosition === "windowCenter"
         ? getBoxPositionOnWindowCenter(windowWidth, windowHeight)
-        : getBoxPositionOnScreenCenter(windowWidth, windowHeight)
-      ),
+        : getBoxPositionOnScreenCenter(windowWidth, windowHeight))
     };
 
     windowOpen(link, windowConfig, onShareWindowClose);
-  }
+  };
 
   link() {
     const { url, opts, networkLink } = this.props;
@@ -166,22 +170,22 @@ class ShareButton extends PureComponent {
       network,
       role,
       style,
-      tabIndex,
+      tabIndex
     } = this.props;
 
     const classes = cx(
-      'SocialMediaShareButton',
+      "SocialMediaShareButton",
       `SocialMediaShareButton--${network}`,
       {
-        'SocialMediaShareButton--disabled': !!disabled,
-        disabled: !!disabled,
+        "SocialMediaShareButton--disabled": !!disabled,
+        disabled: !!disabled
       },
-      className,
+      className
     );
 
     return (
       <div
-        aria-label={network}
+        aria-label={props["aria-label"] || network}
         {...additionalProps}
         role={role}
         tabIndex={tabIndex}
@@ -190,21 +194,30 @@ class ShareButton extends PureComponent {
         className={classes}
         style={{
           ...style,
-          ...(disabled ? disabledStyle : {}),
-        }}>
+          ...(disabled ? disabledStyle : {})
+        }}
+      >
         {children}
       </div>
     );
   }
 }
 
-function createShareButton(network, link, optsMap = () => ({}), propTypes, defaultProps = {}) {
+function createShareButton(
+  network,
+  link,
+  optsMap = () => ({}),
+  propTypes,
+  defaultProps = {}
+) {
   const CreatedButton = React.forwardRef((props, ref) => (
-    <ShareButton {...props}
+    <ShareButton
+      {...props}
       ref={ref}
       network={network}
       networkLink={link}
-      opts={optsMap(props)} />
+      opts={optsMap(props)}
+    />
   ));
 
   CreatedButton.propTypes = propTypes;
